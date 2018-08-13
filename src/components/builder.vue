@@ -8,7 +8,7 @@
         v-on:mouseup="mouseup"
     >
     
-    <div id="container" >
+    <div id="container" class="fixed" >
         <h1>hello</h1>
         <span>id</span>
         <button>collection</button>
@@ -28,7 +28,6 @@
 
 class SelectionBox{
 
-    
     constructor() {
         this.draw = undefined;
         this.rect = undefined;
@@ -42,6 +41,14 @@ class SelectionBox{
         this.rect = this.draw.rect();
 
         this.makers.left = this.draw.circle(this.circleSize).fill('#f06');
+        // this.makers.left.id("makers-left");
+        // this.makers.left.on("mousemove", function() {
+        //     console.log("move left");
+        // });
+
+        // this.makers.left.on("click", function() {
+        //     console.log("click");
+        // });
         this.makers.right = this.draw.circle(this.circleSize).fill('#f06');
         this.makers.top = this.draw.circle(this.circleSize).fill('#f06');
         this.makers.bottom = this.draw.circle(this.circleSize).fill('#f06');
@@ -63,15 +70,17 @@ class SelectionBox{
     }
 
     moveElement(target, x,y) {
+        
+        this.drawRectange(target.offsetLeft,target.offsetTop, target.offsetWidth, target.offsetHeight);
         target.style.position = "absolute";
         target.style.left = x + "px";
         target.style.top = y + "px";
+
     }
 }
 
 export default {
     name: 'builder',
-    selection : new SelectionBox(),
     data () {
         return {
             container :{},
@@ -116,30 +125,11 @@ export default {
     methods :{
         mousemove(event ) {
             if (this.mouse.pressed && this.target) {
+                //console.dir();
+                if (this.target.classList.contains("fixed"))
+                    return;
                 this.selection.moveElement(this.target, event.x, event.y);
             }
-            // this.mouse.position = { x: event.x , y: event.y };
-            
-            // this.target = event.target;
-            // if (this.target) {
-            //     this.mouse.pressed = true;
-            //     this.selectionShape.left = this.target.offsetLeft + "px";
-            //     this.selectionShape.top = this.target.offsetTop+ "px";
-            //     this.selectionShape.width = this.target.offsetWidth+ "px";
-            //     this.selectionShape.height = this.target.offsetHeight+ "px";
-            //     console.log(this.target, this.target.offsetLeft, this.target.offsetTop, this.target.width, this.target.height)
-            // }
-            // else {
-            //     //console.dir(this.target)
-            //     // if (!this.mouse.pressed)
-            //     //     return;
-            //     // this.mouse.selection.right = event.x;
-            //     // this.mouse.selection.bottom = event.y;
-            //     // this.selectionShape.left = this.mouse.selection.x + "px";
-            //     // this.selectionShape.top = this.mouse.selection.y + "px";
-            //     // this.selectionShape.width = this.mouse.selection.right - this.mouse.selection.x + "px";
-            //     // this.selectionShape.height = this.mouse.selection.bottom -this.mouse.selection.y+ "px";
-            // }
 
         },
         mousedown(event) {
@@ -156,41 +146,12 @@ export default {
                 
                 this.selection.drawRectange(this.target.offsetLeft,this.target.offsetTop, this.target.offsetWidth, this.target.offsetHeight);                
             }
-            else {
-                //console.dir(this.target)
-                // if (!this.mouse.pressed)
-                //     return;
-                // this.mouse.selection.right = event.x;
-                // this.mouse.selection.bottom = event.y;
-                // this.selectionShape.left = this.mouse.selection.x + "px";
-                // this.selectionShape.top = this.mouse.selection.y + "px";
-                // this.selectionShape.width = this.mouse.selection.right - this.mouse.selection.x + "px";
-                // this.selectionShape.height = this.mouse.selection.bottom -this.mouse.selection.y+ "px";
-            }
-
-            // this.mouse.pressed = true;  
-            // this.mouse.selection.x = event.x;
-            // this.mouse.selection.y = event.y;
         },
         mouseup(event) {
             this.mouse.pressed = false;
-            // this.selectionShape.left = "0px";
-            // this.selectionShape.top = "0px";
-            // this.selectionShape.width = "0px";
-            // this.selectionShape.height = "0px";
         }
     }, 
     mounted :function(){
-        console.log(arguments);
-        this.container = this.$el.querySelector("#container")
-        console.dir(this.container.children[0]);
-
-
-        // draw.rect()
-        // // draw pink square
-        // draw.rect(100, 100).move(100, 50).fill('transparent').stroke({ width: 0.5,color:'#f06' })
-
-        // init();
         this.selection.init();
     },
 
@@ -223,6 +184,14 @@ export default {
         width: 100%;
         height: 100%;
         pointer-events:none;
+    }
+
+</style>
+<style>
+
+    #makers-left {
+        color: red;
+        pointer-events: all;
     }
     
 </style>
