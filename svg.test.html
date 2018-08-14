@@ -6,14 +6,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.5/svg.min.js"></script>
   </head>
   <body>
+      <button onclick="changePosition()">move</button>
     <div id="svg"></div>
-    
   </body>
   <script>
+    function changePosition() {
+      rect.move(400,500);
+    }
       var draw = SVG('svg').size(1300, 1130)
 
         var line = draw.line(0, 100, 100, 0).move(20, 20)
         line.stroke({ color: '#f06', width: 0.5, linecap: 'round' })
         var rect = draw.rect(100, 100).fill('transparent').stroke({color:"black", width:1}).move(20, 220)
+        rect.on("click", function() {
+          console.log("::click");
+        })
   </script>
 </html>

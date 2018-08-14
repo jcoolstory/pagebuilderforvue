@@ -8,7 +8,7 @@
         v-on:mouseup="mouseup"
     >
     
-    <div id="container" class="fixed" >
+    <div id="container" class="fixed" style="background:#a4a4a4" >
         <h1>hello</h1>
         <span>id</span>
         <button>collection</button>
@@ -28,31 +28,66 @@
 
 class SelectionBox{
 
+
     constructor() {
         this.draw = undefined;
         this.rect = undefined;
         this.makers = {};
-        this.circleSize = 5;
+        this.circleSize = 15;
+        this.targetOffsetPosition = {x:0,y:0};
+        this.target = undefined;
+        this.lastMovePosition = { x: 0 , y:0};
+        this.resize = {
+            enable : false,
+            target : "none",
+            lastWidth : 0
+        }
     }
 
     init () {
-
+        const t = this;
         this.draw = SVG('svgTest')
         this.rect = this.draw.rect();
 
         this.makers.left = this.draw.circle(this.circleSize).fill('#f06');
-        // this.makers.left.id("makers-left");
-        // this.makers.left.on("mousemove", function() {
-        //     console.log("move left");
-        // });
+        this.makers.left.id("makers-left");
+        this.makers.left.on("mousemove", function(event) {
+            if (t.resize.enable == false)
+                return;
+            
+            let {x ,y } = event;
+            
+            var  offsetW =  t.lastMovePosition.x - x;
+            var width = t.target.clientWidth + offsetW;
+            t.target.style.width =  t.target.clientWidth + offsetW + "px";
+            console.log("changeWidth", x, y);
+            
+            t.target.style.left = t.target.offsetLeft - offsetW + "px";
+            t.lastMovePosition.x = x;
+            t.lastMovePosition.y = y;
+            
+            t.drawRectange(x,y,width,t.target.height);
+            this.move(x - 7.5,y - 7.5);
+        });
 
-        // this.makers.left.on("click", function() {
-        //     console.log("click");
-        // });
+        this.makers.left.on("mousedown", function(event) {
+            console.log(this,"maker-left");
+            let {x ,y } = event;
+             t.resize.enable = true;
+             t.resize.target = "left";
+             t.targetOffsetPosition.x = x ;
+             t.targetOffsetPosition.y = y;
+        });
+
+        this.makers.left.on("mouseup", function() {
+            t.resize.enable = false;
+        })
+
+        
+
         this.makers.right = this.draw.circle(this.circleSize).fill('#f06');
         this.makers.top = this.draw.circle(this.circleSize).fill('#f06');
         this.makers.bottom = this.draw.circle(this.circleSize).fill('#f06');
-
 
         this.rect.fill('transparent').stroke({ width: 0.5,color:'#f06' })
 
@@ -70,12 +105,45 @@ class SelectionBox{
     }
 
     moveElement(target, x,y) {
-        
-        this.drawRectange(target.offsetLeft,target.offsetTop, target.offsetWidth, target.offsetHeight);
-        target.style.position = "absolute";
-        target.style.left = x + "px";
-        target.style.top = y + "px";
+        console.log("moveElement")
+        // if (this.resize.enable) {
+            
+        //     target.style.left = x + "px";
 
+        //     //target.style.width = this.style.width
+        //     //target.style.width = this.style.width
+        //     var offsetW =  this.lastMovePosition.x - x;
+        //     target.style.width =  target.clientWidth + offsetW + "px";
+        //     //this.lastMovePosition.y - y;
+
+        //     this.lastMovePosition.x = mouse_x;
+        //     this.lastMovePosition.y = mouse_y;
+        //     console.log(x,y);
+        // } else 
+        {
+            
+            this.drawRectange(target.offsetLeft,target.offsetTop, target.offsetWidth, target.offsetHeight);
+            target.style.position = "absolute";
+            target.style.left = x - this.targetOffsetPosition.x + "px";
+            target.style.top = y - this.targetOffsetPosition.y+ "px";
+        }
+    }
+
+
+
+    mouseDown(target, target_x, target_y, mouse_x, mouse_y) {
+        this.resize.enable = false;
+        this.target = target;
+        
+        this.targetOffsetPosition.x = mouse_x - target_x;
+        this.targetOffsetPosition.y = mouse_y - target_y;
+        this.lastMovePosition.x = mouse_x;
+        this.lastMovePosition.y = mouse_y;
+        //console.log(target_x,target_y,mouse_x, mouse_y);
+    }
+
+    mouseUp() {
+        // this.tar
     }
 }
 
@@ -143,12 +211,13 @@ export default {
                 this.selectionShape.top = this.target.offsetTop+ "px";
                 this.selectionShape.width = this.target.offsetWidth+ "px";
                 this.selectionShape.height = this.target.offsetHeight+ "px";
-                
+                this.selection.mouseDown(this.target, this.target.offsetLeft, this.target.offsetTop, this.mouse.position.x , this.mouse.position.y);
                 this.selection.drawRectange(this.target.offsetLeft,this.target.offsetTop, this.target.offsetWidth, this.target.offsetHeight);                
             }
         },
         mouseup(event) {
             this.mouse.pressed = false;
+            this.selection.mouseUp();
         }
     }, 
     mounted :function(){
